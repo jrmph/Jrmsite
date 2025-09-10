@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Anime Meta-Aggregator - README</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container my-4">
+  <h1>Anime Meta-Aggregator</h1>
+  <p class="text-secondary">PHP + cURL + DOM + HTML/CSS/JS using CDN assets</p>
+
+  <h2>What is this?</h2>
+  <p>
+    A minimal demo that searches multiple providers for anime metadata (title, link, thumbnail, synopsis) and shows unified results.
+    It does not re-host streams or bypass DRM. It is intended for discovery only.
+  </p>
+
+  <h2>Features</h2>
+  <ul>
+    <li>Search across multiple providers</li>
+    <li>Server-side cURL requests with caching</li>
+    <li>DOM parsing example (Anime News Network)</li>
+    <li>Open API provider example (Kitsu)</li>
+    <li>Bootstrap UI via jsDelivr, icons via cdnjs</li>
+  </ul>
+
+  <h2>Run locally</h2>
+  <ol>
+    <li>Ensure PHP 8+ is installed with cURL extension enabled.</li>
+    <li>Serve this folder via PHP’s built-in server:
+      <pre>php -S 127.0.0.1:8000</pre>
+    </li>
+    <li>Open <a href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a> in your browser.</li>
+  </ol>
+
+  <h2>Providers</h2>
+  <ul>
+    <li><strong>Kitsu</strong>: Uses their public API via cURL.</li>
+    <li><strong>Anime News Network</strong>: Scrapes HTML with DOMDocument and XPath.</li>
+  </ul>
+
+  <p class="alert alert-warning">
+    Many popular streaming sites use anti-bot protections (e.g., Cloudflare) or prohibit scraping in their Terms.
+    Server-side cURL alone may not work for those. This demo intentionally avoids prohibited scraping and adult content.
+  </p>
+
+  <h2>Adding a new provider</h2>
+  <ol>
+    <li>Create a file in <code>providers/</code> that implements <code>ProviderInterface</code>.</li>
+    <li>Use <code>HttpClient</code> for network calls and, if scraping HTML, <code>DOMDocument</code>/<code>DOMXPath</code> to parse.</li>
+    <li>Add your provider to <code>api/search.php</code> providers array.</li>
+  </ol>
+
+  <h3>Provider skeleton</h3>
+  <pre><code>&lt;?php
+require_once __DIR__ . '/../lib/HttpClient.php';
+require_once __DIR__ . '/ProviderInterface.php';
+
+class MyProvider implements ProviderInterface {
+  private HttpClient $http;
+  public function __construct() {
+    $this-&gt;http = new HttpClient();
+  }
+  public function name(): string { return 'MyProvider'; }
+  public function search(string $query): array {
+    $res = $this-&gt;http-&gt;get('https://example.com/search?q=' . rawurlencode($query));
+    if (!$res['ok'] || $res['status'] !== 200) return [];
+    $doc = new DOMDocument();
+    @$doc-&gt;loadHTML($res['body']);
+    $xpath = new DOMXPath($doc);
+    // Parse and map results...
+    return [];
+  }
+}
+</code></pre>
+
+  <h2>Legal and ethical</h2>
+  <ul>
+    <li>Respect each website’s Terms of Service and robots.txt.</li>
+    <li>Do not scrape or redistribute copyrighted content unlawfully.</li>
+    <li>This project is for educational purposes and metadata aggregation only.</li>
+  </ul>
+
+  <p class="text-secondary small mt-4">© Demo</p>
+</body>
+</html>

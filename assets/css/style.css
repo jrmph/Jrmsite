@@ -1,0 +1,15 @@
+/* Minimal custom styles */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-img-top {
+  object-fit: cover;
+  height: 260px;
+}
+
+#alerts .alert + .alert {
+  margin-top: .75rem;
+}
